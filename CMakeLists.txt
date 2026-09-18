@@ -2,18 +2,22 @@ cmake_minimum_required(VERSION 3.16)
 
 project(EAE_Firmware C CXX)
 
-# Use C11 for the firmware
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-# Build the main firmware simulation
+# Main firmware executable
 add_executable(eae_firmware
-    main.c
-    can_sim.c
-    cooling_control.c
-    fault_manager.c
-    pid.c
-    state_machine.c
+    src/main.c
+    src/can_sim.c
+    src/cooling_control.c
+    src/fault_manager.c
+    src/pid.c
+    src/state_machine.c
+)
+
+# Header files are stored here
+target_include_directories(eae_firmware PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 
@@ -26,6 +30,7 @@ include(FetchContent)
 FetchContent_Declare(
     googletest
     URL https://github.com/google/googletest/archive/refs/tags/v1.17.0.zip
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 
 FetchContent_MakeAvailable(googletest)
@@ -33,24 +38,21 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 
-# Build the unit test executable
+# Unit test executable
 add_executable(eae_tests
     tests/test_firmware.cpp
-    pid.c
-    state_machine.c
-    fault_manager.c
+    src/pid.c
+    src/state_machine.c
+    src/fault_manager.c
 )
 
-# Allow the tests to find our header files
 target_include_directories(eae_tests PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-# Link GoogleTest
 target_link_libraries(eae_tests PRIVATE
     GTest::gtest_main
 )
-
 
 include(GoogleTest)
 
